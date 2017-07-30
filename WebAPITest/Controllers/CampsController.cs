@@ -99,5 +99,35 @@ namespace WebAPITest.Controllers
             return BadRequest();
 
         }
+
+        [HttpPatch("{index}")]
+        [HttpPut("{index}")]
+        public async Task<IActionResult> Put(int index, [FromBody] Camp model)
+        {
+            Camp camp = _repo.GetCamp(index);
+            if (null == camp)
+            {
+                return NotFound(index);
+            }
+
+            // Doing update
+            camp.Name = model.Name ?? camp.Name;
+            camp.Description = model.Description ?? camp.Description;
+            camp.Location = model.Location ?? camp.Location;
+
+            try
+            {
+                if (await _repo.SaveAllAsync())
+                {
+                    return Ok(camp);
+                }
+            }
+            catch
+            {
+                
+            }
+
+            return BadRequest("Update to camp failed.");
+        }
     }
 }
