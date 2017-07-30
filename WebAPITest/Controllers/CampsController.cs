@@ -40,7 +40,7 @@ namespace WebAPITest.Controllers
             return Ok(camp);
         }
 
-        [HttpGet("{index}")]
+        [HttpGet("{index}", Name = "MyIndexGet")]
         public IActionResult Get3(int index, bool speacker)
         {
             try
@@ -66,6 +66,33 @@ namespace WebAPITest.Controllers
             }
 
             return BadRequest();
+        }
+
+        /// <summary>
+        /// Post on success should return "Created" 
+        ///
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost()]
+        public async Task<IActionResult> Post([FromBody]Camp model)
+        {
+            try
+            {
+                _repo.Add(model);
+                if (await _repo.SaveAllAsync())
+                {
+                    string uri = Url.Link("MyIndexGet", new {index = model.Id, speaker = true});
+                    return Created(uri, model);
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return BadRequest();
+
         }
     }
 }
