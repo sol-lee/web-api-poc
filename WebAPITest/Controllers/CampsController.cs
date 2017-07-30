@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebAPITest.Data;
 using WebAPITest.Data.Entities;
+using WebAPITest.Models;
 
 namespace WebAPITest.Controllers
 {
@@ -14,11 +16,13 @@ namespace WebAPITest.Controllers
     {
         private ICampRepository _repo;
         private ILogger<CampsController> _logger;
+        private IMapper _mapper;
 
-        public CampsController(ICampRepository repo, ILogger<CampsController> logger)
+        public CampsController(ICampRepository repo, ILogger<CampsController> logger, IMapper mapper)
         {
             _repo = repo;
             _logger = logger;
+            _mapper = mapper;
 
         }
 
@@ -33,15 +37,13 @@ namespace WebAPITest.Controllers
             return Ok(camp);
         }
 
-        [HttpGet("[action]")]
-        public IActionResult Get2()
+        [HttpGet("[action]/{index}")]
+        public IActionResult Get2(int index)
         {
-            var camp = _repo.GetAllCamps();
-            var addr = _repo.GetHashCode();
-
-            // Anonmous Type
+            var camp = _repo.GetCamp(index);
+            
             // Ok -> 200
-            return Ok(camp);
+            return Ok(_mapper.Map<CampModel>(camp, opt => opt.Items["UrlHelper"] = Url));
         }
 
         [HttpGet("{index}", Name = "MyIndexGet")]
