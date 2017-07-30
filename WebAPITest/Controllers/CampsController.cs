@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using WebAPITest.Data;
 using WebAPITest.Data.Entities;
 
@@ -12,10 +13,13 @@ namespace WebAPITest.Controllers
     public class CampsController : Controller
     {
         private ICampRepository _repo;
+        private ILogger<CampsController> _logger;
 
-        public CampsController(ICampRepository repo)
+        public CampsController(ICampRepository repo, ILogger<CampsController> logger)
         {
             _repo = repo;
+            _logger = logger;
+
         }
 
         [HttpGet("get1")]
@@ -79,6 +83,7 @@ namespace WebAPITest.Controllers
         {
             try
             {
+                _logger.LogInformation($"[Post] Create a new item {model.Name}");
                 _repo.Add(model);
                 if (await _repo.SaveAllAsync())
                 {
