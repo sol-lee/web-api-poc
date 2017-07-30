@@ -12,7 +12,7 @@ using WebAPITest.Models;
 namespace WebAPITest.Controllers
 {
     [Route("api/[controller]")]
-    public class CampsController : Controller
+    public class CampsController : BaseController
     {
         private ICampRepository _repo;
         private ILogger<CampsController> _logger;
@@ -34,7 +34,7 @@ namespace WebAPITest.Controllers
 
             // Anonmous Type
             // Ok -> 200
-            return Ok(camp);
+            return Ok(_mapper.Map<ICollection<CampModel>>(camp));
         }
 
         [HttpGet("[action]/{index}")]
@@ -43,7 +43,7 @@ namespace WebAPITest.Controllers
             var camp = _repo.GetCamp(index);
             
             // Ok -> 200
-            return Ok(_mapper.Map<CampModel>(camp, opt => opt.Items["UrlHelper"] = Url));
+            return Ok(_mapper.Map<CampModel>(camp));
         }
 
         [HttpGet("{index}", Name = "MyIndexGet")]
@@ -64,7 +64,7 @@ namespace WebAPITest.Controllers
                 
                 if (camp == null)
                     return NotFound($"Camp {index} is not found...");
-                return Ok(camp);
+                return Ok(_mapper.Map<CampModel>(camp));
             }
             catch
             {
