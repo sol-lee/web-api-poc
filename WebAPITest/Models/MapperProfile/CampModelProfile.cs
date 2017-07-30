@@ -23,7 +23,18 @@ namespace WebAPITest.Models.MapperProfile
                 //        IUrlHelper url = (IUrlHelper)rCtx.Items["UrlHelper"];
                 //        return url.Link("MyIndexGet", new { index = src.Id});
                 //    }));
-                .ForMember(dest => dest.Url, option => option.ResolveUsing<UrlValueResolver>());
+                .ForMember(dest => dest.Url, option => option.ResolveUsing<UrlValueResolver>())
+
+                .ReverseMap()
+                .ForMember(dest => dest.Length,
+                    option => option.ResolveUsing(src => (src.EndDate - src.StartDate).Days + 1))
+                .ForMember(dst => dst.Location, option => option.ResolveUsing(src =>
+                {
+                    Location l = new Location();
+                    l.Address1 = src.LocationAddress1;
+                    l.Country = src.LocationCountry;
+                    return l;
+                }));
 
         }
     }

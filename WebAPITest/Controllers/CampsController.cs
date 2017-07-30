@@ -81,16 +81,21 @@ namespace WebAPITest.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost()]
-        public async Task<IActionResult> Post([FromBody]Camp model)
+        public async Task<IActionResult> Post([FromBody]CampModel model)
         {
             try
             {
+                if (!ModelState.IsValid) BadRequest(ModelState);
+
                 _logger.LogInformation($"[Post] Create a new item {model.Name}");
-                _repo.Add(model);
+                Camp camp = _mapper.Map<Camp>(model);
+                _repo.Add(camp);
+
+
                 if (await _repo.SaveAllAsync())
                 {
                     string uri = Url.Link("MyIndexGet", new {index = model.Id, speaker = true});
-                    return Created(uri, model);
+                    return Created(uri, _mapper.Map<CampModel>(camp));
                 }
             }
             catch (Exception e)
@@ -104,8 +109,10 @@ namespace WebAPITest.Controllers
 
         [HttpPatch("{index}")]
         [HttpPut("{index}")]
-        public async Task<IActionResult> Put(int index, [FromBody] Camp model)
+        public async Task<IActionResult> Put(int index, [FromBody] CampModel model)
         {
+            if (!ModelState.IsValid) BadRequest(ModelState);
+
             Camp camp = _repo.GetCamp(index);
             if (null == camp)
             {
@@ -113,15 +120,14 @@ namespace WebAPITest.Controllers
             }
 
             // Doing update
-            camp.Name = model.Name ?? camp.Name;
-            camp.Description = model.Description ?? camp.Description;
-            camp.Location = model.Location ?? camp.Location;
+            _mapper.Map(model, camp);
+
 
             try
             {
                 if (await _repo.SaveAllAsync())
                 {
-                    return Ok(camp);
+                    return Ok(_mapper.Map<CampModel>(camp));
                 }
             }
             catch
