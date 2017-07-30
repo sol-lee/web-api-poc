@@ -22,7 +22,7 @@ namespace WebAPITest.Controllers
 
         }
 
-        [HttpGet("get1")]
+        [HttpGet()]
         public IActionResult Get1()
         {
             var camp = _repo.GetAllCamps();
@@ -128,6 +128,33 @@ namespace WebAPITest.Controllers
             }
 
             return BadRequest("Update to camp failed.");
+        }
+
+
+        [HttpDelete("{index}")]
+        public async Task<IActionResult> Delete(int index)
+        {
+            try
+            {
+                var camp = _repo.GetCamp(index);
+                if (null == camp)
+                {
+                    return NotFound();
+                }
+
+                _repo.Delete(camp);
+                if (await _repo.SaveAllAsync())
+                {
+                    return Ok();
+                }
+            }
+            catch
+            {
+                
+            }
+
+            return BadRequest();
+
         }
     }
 }
